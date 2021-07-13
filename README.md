@@ -16,3 +16,8 @@ runs the project
 ```
 sh run.sh
 ```
+
+build and run the project
+```
+sh mrun.sh
+```
