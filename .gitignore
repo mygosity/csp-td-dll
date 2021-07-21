@@ -1,3 +1,6 @@
 build/
 project/
 .vscode/
+
+install.sh
+.DS_Store
