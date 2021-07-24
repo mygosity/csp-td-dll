@@ -1,11 +1,17 @@
 #ifndef MGCP_LIB_UTILS_TIMEMANAGER_H
 #define MGCP_LIB_UTILS_TIMEMANAGER_H
 
-#include <thread>
+#ifndef stdlog
+#define stdlog(x) std::cout << x << std::endl;
+#endif
 
-#include "../helpers.h"
+#include <functional>
+#include <mutex>
+#include <vector>
+
 #include "time.h"
 
+extern "C" {
 namespace mgcp {
 
 struct TimerObject {
@@ -58,5 +64,6 @@ class TimeManager {
 };
 
 }  // namespace mgcp
+}
 
 #endif

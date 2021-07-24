@@ -26,19 +26,21 @@ else()
     message("cpp 14 detected")
 endif()
 
-file(GLOB_RECURSE SOURCE_COMMON "*.cc")
-file(GLOB_RECURSE HEADERS_COMMON "*.h")
+file(GLOB SOURCE_COMMON "*.cc")
+file(GLOB HEADERS_COMMON "*.h")
 
 set(PROJECT_SOURCE ${SOURCE_COMMON})
 set(PROJECT_HEADERS ${HEADERS_COMMON})
 
 # add_executable(${CMAKE_PROJECT_NAME} "main.cpp" "main.h" ${PROJECT_SOURCE} ${PROJECT_HEADERS})
 add_library(${CMAKE_PROJECT_NAME} MODULE ${PROJECT_SOURCE} ${PROJECT_HEADERS})
+
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES SUFFIX ".dll")
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-# set(BUILD_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
-# set(CMAKE_BUILD_FILES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
-# set(CMAKE_BUILD_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
+#timemanager dll
+add_library(timemanager MODULE "lib/utils/time.h" "lib/utils/timemanager.h" "lib/utils/timemanager.cc")
+set_target_properties(timemanager PROPERTIES PREFIX "csp_")
+set_target_properties(timemanager PROPERTIES SUFFIX ".dll")

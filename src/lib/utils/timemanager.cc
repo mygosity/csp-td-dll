@@ -1,5 +1,8 @@
 #include "timemanager.h"
 
+#include <iostream>
+#include <thread>
+
 namespace mgcp {
 
 /*****************************************************************************************************************************************
@@ -11,7 +14,7 @@ TimerObject::TimerObject(int64_t nt, std::function<void()> cb, int32_t interval,
     : nextTime(nt), callback(std::move(cb)), interval(interval), repeat(repeat), keyIndex(keyIndex) {}
 
 TimerObject::~TimerObject() {
-  std::cout << "TimerObject Destroyed - setting callback to null" << '\n';
+  stdlog("TimerObject Destroyed - setting callback to null");
   callback = nullptr;
 }
 /*****************************************************************************************************************************************

@@ -2,8 +2,6 @@
 #define MGCP_LIB_UTILS_TIME_H
 
 #include <chrono>
-#include <functional>
-#include <mutex>
 
 namespace mgcp {
 
