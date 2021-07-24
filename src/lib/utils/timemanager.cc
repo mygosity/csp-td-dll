@@ -22,13 +22,16 @@ TimerObject::~TimerObject() {
  *****************************************************************************************************************************************/
 TimeManager::TimeManager(std::function<void(const char*)> loggingCallback) : extLog(loggingCallback) {
   stdlog("TimeManager created");
-  extLog("TimeManager created");
+  if (extLog)
+    extLog("TimeManager created");
 }
 
 TimeManager::~TimeManager() {
   stdlog("TimeManager Destroyed");
-  extLog("TimeManager Destoyed");
+  if (extLog)
+    extLog("TimeManager Destoyed");
   Stop();
+  extLog = nullptr;
   m_timeoutList.clear();
 }
 
@@ -53,6 +56,7 @@ void TimeManager::Start() {
 void TimeManager::Stop() {
   // std::unique_lock<std::mutex> lock{m_mutex};
   m_activeThread = false;
+  extLog = nullptr;
 }
 
 void TimeManager::Update() {
@@ -110,19 +114,22 @@ void TimeManager::SetOrUpdateInterval(std::function<void()> callback, int32_t in
 
 void TimeManager::ClearTimeout(int32_t keyIndex) {
   stdlog("ClearTimeout::");
-  extLog("ClearTimeout::");
+  if (extLog)
+    extLog("ClearTimeout::");
   RemoveTimerObject(keyIndex);
 }
 
 void TimeManager::ClearInterval(int32_t keyIndex) {
   stdlog("ClearInterval::");
-  extLog("ClearInterval::");
+  if (extLog)
+    extLog("ClearInterval::");
   RemoveTimerObject(keyIndex);
 }
 
 void TimeManager::ClearAll() {
   stdlog("ClearAll::");
-  extLog("ClearAll::");
+  if (extLog)
+    extLog("ClearAll::");
   std::unique_lock<std::mutex> lock{m_mutex};
   m_timeoutList.clear();
 }
@@ -175,12 +182,14 @@ void TimeManager::RemoveTimerObject(int32_t keyIndex) {
     if (c.keyIndex == keyIndex) {
       if (m_mutex.try_lock()) {
         stdlog("RemoveTimerObject:: found callback and erasing it");
-        extLog("RemoveTimerObject:: found callback and erasing it");
+        if (extLog)
+          extLog("RemoveTimerObject:: found callback and erasing it");
         m_timeoutList.erase(m_timeoutList.begin() + i);
         m_mutex.unlock();
       } else {
         stdlog("RemoveTimerObject:: locked out -> deferring erasure");
-        extLog("RemoveTimerObject:: locked out -> deferring erasure");
+        if (extLog)
+          extLog("RemoveTimerObject:: locked out -> deferring erasure");
         c.deferErasure = 1;
       }
       return;
