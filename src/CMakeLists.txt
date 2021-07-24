@@ -40,6 +40,12 @@ set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES SUFFIX ".dll")
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
+
+#tester dll
+add_library(tester MODULE "tester/tester.cc")
+set_target_properties(tester PROPERTIES PREFIX "csp_")
+set_target_properties(tester PROPERTIES SUFFIX ".dll")
+
 #timemanager dll
 add_library(timemanager MODULE "lib/utils/time.h" "lib/utils/timemanager.h" "lib/utils/timemanager.cc")
 set_target_properties(timemanager PROPERTIES PREFIX "csp_")
