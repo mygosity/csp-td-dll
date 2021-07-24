@@ -25,6 +25,7 @@ TimeManager::TimeManager() { stdlog("TimeManager created"); }
 TimeManager::~TimeManager() {
   stdlog("TimeManager Destroyed");
   Stop();
+  m_timeoutList.clear();
 }
 
 void TimeManager::Start() {

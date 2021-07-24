@@ -11,7 +11,6 @@
 
 #include "time.h"
 
-extern "C" {
 namespace mgcp {
 
 struct TimerObject {
@@ -64,6 +63,5 @@ class TimeManager {
 };
 
 }  // namespace mgcp
-}
 
 #endif

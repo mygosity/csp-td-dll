@@ -21,6 +21,7 @@ struct Vector3 {
 // C# functions for C++ to call
 ////////////////////////////////////////////////////////////////
 
+void (*UnityDebugLog)(const char*);
 int (*GameObjectNew)();
 int (*GameObjectGetTransform)(int thisHandle);
 void (*TransformSetPosition)(int thisHandle, Vector3 position);
@@ -31,7 +32,13 @@ void (*TransformSetPosition)(int thisHandle, Vector3 position);
 
 int numCreated;
 
-DLLEXPORT void Init(int (*gameObjectNew)(), int (*gameObjectGetTransform)(int), void (*transformSetPosition)(int, Vector3)) {
+DLLEXPORT void TesterInit(                      //
+    void (*unityDebugLog)(const char*),         //
+    int (*gameObjectNew)(),                     //
+    int (*gameObjectGetTransform)(int),         //
+    void (*transformSetPosition)(int, Vector3)  //
+) {
+  UnityDebugLog = unityDebugLog;
   GameObjectNew = gameObjectNew;
   GameObjectGetTransform = gameObjectGetTransform;
   TransformSetPosition = transformSetPosition;
@@ -39,7 +46,7 @@ DLLEXPORT void Init(int (*gameObjectNew)(), int (*gameObjectGetTransform)(int), 
   numCreated = 0;
 }
 
-DLLEXPORT void MonoBehaviourUpdate(int thisHandle) {
+DLLEXPORT void TesterMonoBehaviourUpdate(int thisHandle) {
   if (numCreated < 10) {
     int goHandle = GameObjectNew();
     int transformHandle = GameObjectGetTransform(goHandle);

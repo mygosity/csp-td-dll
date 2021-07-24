@@ -47,6 +47,11 @@ set_target_properties(tester PROPERTIES PREFIX "csp_")
 set_target_properties(tester PROPERTIES SUFFIX ".dll")
 
 #timemanager dll
-add_library(timemanager MODULE "lib/utils/time.h" "lib/utils/timemanager.h" "lib/utils/timemanager.cc")
+add_library(timemanager MODULE
+ "lib/utils/time.h"
+ "lib/utils/timemanager_ext.cc"
+ "lib/utils/timemanager.h"
+ "lib/utils/timemanager.cc"
+)
 set_target_properties(timemanager PROPERTIES PREFIX "csp_")
 set_target_properties(timemanager PROPERTIES SUFFIX ".dll")
