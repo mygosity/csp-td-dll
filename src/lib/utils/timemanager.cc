@@ -10,8 +10,8 @@ namespace mgcp {
  *****************************************************************************************************************************************/
 TimerObject::TimerObject(int64_t nt, std::function<void()> cb, int32_t interval)
     : nextTime(nt), callback(std::move(cb)), interval(interval) {}
-TimerObject::TimerObject(int64_t nt, std::function<void()> cb, int32_t interval, bool repeat, int32_t keyIndex)
-    : nextTime(nt), callback(std::move(cb)), interval(interval), repeat(repeat), keyIndex(keyIndex) {}
+TimerObject::TimerObject(int64_t nt, std::function<void()> cb, int32_t interval, int32_t keyIndex, bool repeat)
+    : nextTime(nt), callback(std::move(cb)), interval(interval), keyIndex(keyIndex), repeat(repeat) {}
 
 TimerObject::~TimerObject() {
   stdlog("TimerObject Destroyed - setting callback to null");
@@ -20,10 +20,14 @@ TimerObject::~TimerObject() {
 /*****************************************************************************************************************************************
  * TimeManager
  *****************************************************************************************************************************************/
-TimeManager::TimeManager() { stdlog("TimeManager created"); }
+TimeManager::TimeManager(std::function<void(const char*)> loggingCallback) : extLog(loggingCallback) {
+  stdlog("TimeManager created");
+  extLog("TimeManager created");
+}
 
 TimeManager::~TimeManager() {
   stdlog("TimeManager Destroyed");
+  extLog("TimeManager Destoyed");
   Stop();
   m_timeoutList.clear();
 }
@@ -58,7 +62,9 @@ void TimeManager::Update() {
     int64_t nextShortestTime = std::numeric_limits<int64_t>::max();
     for (int32_t i = (int32_t)m_timeoutList.size() - 1; i >= 0; --i) {
       auto& c = m_timeoutList.at(i);
-      if (timestamp >= c.nextTime) {
+      if (c.deferErasure) {
+        m_timeoutList.erase(m_timeoutList.begin() + i);
+      } else if (timestamp >= c.nextTime) {
         c.callback();
         if (c.repeat) {
           c.nextTime = timestamp + c.interval;
@@ -104,16 +110,19 @@ void TimeManager::SetOrUpdateInterval(std::function<void()> callback, int32_t in
 
 void TimeManager::ClearTimeout(int32_t keyIndex) {
   stdlog("ClearTimeout::");
+  extLog("ClearTimeout::");
   RemoveTimerObject(keyIndex);
 }
 
 void TimeManager::ClearInterval(int32_t keyIndex) {
   stdlog("ClearInterval::");
+  extLog("ClearInterval::");
   RemoveTimerObject(keyIndex);
 }
 
 void TimeManager::ClearAll() {
   stdlog("ClearAll::");
+  extLog("ClearAll::");
   std::unique_lock<std::mutex> lock{m_mutex};
   m_timeoutList.clear();
 }
@@ -125,7 +134,7 @@ void TimeManager::AddTimerObject(int32_t keyIndex, int64_t nextTime, std::functi
   std::unique_lock<std::mutex> lock{m_mutex};
   m_nextUpdateTime = nextTime <= m_nextUpdateTime ? nextTime : m_nextUpdateTime;
   stdlog("AddTimerObject:: callback adding new callback, interval: " << interval);
-  m_timeoutList.emplace_back(nextTime, callback, interval, repeat, keyIndex);
+  m_timeoutList.emplace_back(nextTime, callback, interval, keyIndex, repeat);
   stdlog("time now: " << GetTimeNow() << " nextTime: " << nextTime << " m_nextUpdateTime: " << m_nextUpdateTime);
 }
 
@@ -164,8 +173,16 @@ void TimeManager::RemoveTimerObject(int32_t keyIndex) {
   for (; i >= 0; --i) {
     auto& c = m_timeoutList[i];
     if (c.keyIndex == keyIndex) {
-      stdlog("RemoveTimerObject:: found callback and erasing it");
-      m_timeoutList.erase(m_timeoutList.begin() + i);
+      if (m_mutex.try_lock()) {
+        stdlog("RemoveTimerObject:: found callback and erasing it");
+        extLog("RemoveTimerObject:: found callback and erasing it");
+        m_timeoutList.erase(m_timeoutList.begin() + i);
+        m_mutex.unlock();
+      } else {
+        stdlog("RemoveTimerObject:: locked out -> deferring erasure");
+        extLog("RemoveTimerObject:: locked out -> deferring erasure");
+        c.deferErasure = 1;
+      }
       return;
     }
   }

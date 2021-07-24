@@ -15,19 +15,20 @@ namespace mgcp {
 
 struct TimerObject {
   TimerObject(int64_t nt, std::function<void()> cb, int32_t interval);
-  TimerObject(int64_t nt, std::function<void()> cb, int32_t interval, bool repeat, int32_t keyIndex);
+  TimerObject(int64_t nt, std::function<void()> cb, int32_t interval, int32_t keyIndex, bool repeat);
   ~TimerObject();
 
   int64_t nextTime;                // 8
   std::function<void()> callback;  // 4
   int32_t interval;                // 4
-  bool repeat = 0;
-  int32_t keyIndex;
+  int32_t keyIndex;                // 4
+  bool repeat = 0;                 // 1
+  bool deferErasure = 0;           // 1
 };
 
 class TimeManager {
  public:
-  TimeManager();
+  TimeManager(std::function<void(const char*)> loggingCallback);
   ~TimeManager();
 
   void Start();
@@ -49,6 +50,7 @@ class TimeManager {
   int64_t GetNextIntervalTime();
 
  private:
+  std::function<void(const char*)> extLog;
   int32_t m_keyIndex = 0;
   int64_t m_nextUpdateTime = 0;
   std::vector<TimerObject> m_timeoutList;
