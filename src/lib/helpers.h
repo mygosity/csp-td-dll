@@ -21,7 +21,7 @@ inline bool IsStringInside(const std::string& src, const std::string& insider, c
     return false;
   }
   for (int32_t i = 0; i < insider.size(); ++i) {
-    if (insider[i] != src[srcIndex + i]) {
+    if (insider[i] != src[srcIndex + (int32_t)i]) {
       return false;
     }
   }
@@ -51,20 +51,20 @@ inline std::string PadString(const uint32_t currentNumber, const size_t padLen, 
 }
 
 inline std::string GetFormattedTime(const uint64_t timeMs) {
-  const uint64_t timeSeconds = std::floor(timeMs / 1000);
+  const uint64_t timeSeconds = (uint64_t)std::floor(timeMs / 1000);
   std::string formattedString = "";
 
   if (timeSeconds >= 3600) {
-    const std::string hours = PadString(std::floor(timeSeconds / 3600), 2, '0');
+    const std::string hours = PadString((uint32_t)std::floor(timeSeconds / 3600), 2, '0');
     formattedString.append(hours).append(":");
   }
 
   if (timeSeconds >= 60) {
-    const std::string minutes = PadString(std::floor((timeSeconds / 60) % 60), 2, '0');
+    const std::string minutes = PadString((uint32_t)std::floor((timeSeconds / 60) % 60), 2, '0');
     formattedString.append(minutes).append(":");
   }
 
-  const std::string seconds = PadString(std::floor(timeSeconds % 60), 2, '0');
+  const std::string seconds = PadString((uint32_t)std::floor(timeSeconds % 60), 2, '0');
   formattedString.append(seconds);
   return formattedString;
 }
