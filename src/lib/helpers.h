@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #define stdlog(x) std::cout << x << '\n';
@@ -21,7 +22,7 @@ inline bool IsStringInside(const std::string& src, const std::string& insider, c
     return false;
   }
   for (int32_t i = 0; i < insider.size(); ++i) {
-    if (insider[i] != src[srcIndex + (int32_t)i]) {
+    if (insider[i] != src[srcIndex + i]) {
       return false;
     }
   }
@@ -67,6 +68,73 @@ inline std::string GetFormattedTime(const uint64_t timeMs) {
   const std::string seconds = PadString((uint32_t)std::floor(timeSeconds % 60), 2, '0');
   formattedString.append(seconds);
   return formattedString;
+}
+
+inline int64_t IndexOfWithKmp(std::string haystack, std::string needle) {
+  // knuth morris pratt algorithm for faster string searching
+  std::vector<size_t> lps(needle.size());
+  for (size_t i = 1, last = 0; i < lps.size(); ++i) {
+    while (last > 0 && needle[last] != needle[i]) {
+      last = lps[last - 1];
+    }
+    lps[i] = needle[last] == needle[i] ? ++last : 0;
+  }
+  for (size_t i = 0, j = 0; i < haystack.size();) {
+    if (haystack[i] == needle[j]) {
+      ++j;
+      ++i;
+      if (j == needle.size()) {
+        return i - needle.size();
+      }
+    } else {
+      if (j > 0) {
+        j = lps[j - 1];
+        continue;
+      }
+      ++i;
+    }
+  }
+  return -1;
+}
+
+inline std::vector<std::string> SplitStringWithKmp(std::string haystack, std::string needle) {
+  // knuth morris pratt algorithm for faster string searching
+  std::vector<size_t> lps(needle.size());
+  for (size_t i = 1, last = 0; i < lps.size(); ++i) {
+    while (last > 0 && needle[last] != needle[i]) {
+      last = lps[last - 1];
+    }
+    lps[i] = needle[last] == needle[i] ? ++last : 0;
+  }
+
+  std::vector<std::string> finalResult;
+  size_t lastPosition = 0;
+
+  for (size_t i = 0, j = 0; i < haystack.size();) {
+    if (haystack[i] == needle[j]) {
+      ++j;
+      ++i;
+      if (j == needle.size()) {
+        std::string current = haystack.substr(lastPosition, i - lastPosition - needle.size());
+        // std::cout << "SplitStringWithKmp:: current: " << current << " i: " << i << " j: " << j << " lastPosition: " <<
+        // lastPosition
+        //           << "\n";
+        finalResult.push_back(current);
+        j = 0;
+        lastPosition = i;
+      }
+    } else {
+      if (j > 0) {
+        j = lps[j - 1];
+        continue;
+      }
+      ++i;
+    }
+  }
+  std::string lastString = haystack.substr(lastPosition);
+  finalResult.push_back(lastString);
+  // std::cout << "SplitStringWithKmp:: lastString: " << lastString << "\n";
+  return finalResult;
 }
 
 inline std::vector<std::string> SplitString(const std::string& target, const std::string& delimiter) {
@@ -139,6 +207,17 @@ inline std::string StringifyVectorContents(const std::vector<std::string>& vec, 
   }
   s.append(" }");
   return s;
+}
+
+template <typename T>
+inline void PrintMapKeys(const std::unordered_map<std::string, T>& map, const std::string name = "") {
+  std::cout << "PrintMap::" << name << '\n';
+  for (auto itr = map.begin(); itr != map.end(); itr++) {
+    auto key = itr->first;
+    auto value = itr->second;
+    std::cout << "\tkey: " << key << " value: " << value << '\n';
+  }
+  std::cout << "PrintMap:: finished" << name << '\n';
 }
 
 template <typename T>
