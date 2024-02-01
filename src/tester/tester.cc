@@ -21,10 +21,10 @@ struct Vector3 {
 // C# functions for C++ to call
 ////////////////////////////////////////////////////////////////
 
-void (*UnityDebugLog)(const char*);
-int (*GameObjectNew)();
-int (*GameObjectGetTransform)(int thisHandle);
-void (*TransformSetPosition)(int thisHandle, Vector3 position);
+void (*MGCP_Tester_UnityDebugLog)(const char*);
+int (*MGCP_Tester_GameObjectNew)();
+int (*MGCP_Tester_GameObjectGetTransform)(int thisHandle);
+void (*MGCP_Tester_TransformSetPosition)(int thisHandle, Vector3 position);
 
 ////////////////////////////////////////////////////////////////
 // C++ functions for C# to call
@@ -38,21 +38,21 @@ DLLEXPORT void TesterInit(                      //
     int (*gameObjectGetTransform)(int),         //
     void (*transformSetPosition)(int, Vector3)  //
 ) {
-  UnityDebugLog = unityDebugLog;
-  GameObjectNew = gameObjectNew;
-  GameObjectGetTransform = gameObjectGetTransform;
-  TransformSetPosition = transformSetPosition;
+  MGCP_Tester_UnityDebugLog = unityDebugLog;
+  MGCP_Tester_GameObjectNew = gameObjectNew;
+  MGCP_Tester_GameObjectGetTransform = gameObjectGetTransform;
+  MGCP_Tester_TransformSetPosition = transformSetPosition;
 
   numCreated = 0;
 }
 
 DLLEXPORT void TesterMonoBehaviourUpdate(int thisHandle) {
   if (numCreated < 10) {
-    int goHandle = GameObjectNew();
-    int transformHandle = GameObjectGetTransform(goHandle);
+    int goHandle = MGCP_Tester_GameObjectNew();
+    int transformHandle = MGCP_Tester_GameObjectGetTransform(goHandle);
     float comp = 10.0f * (float)numCreated;
     Vector3 position = {comp, comp, comp};
-    TransformSetPosition(transformHandle, position);
+    MGCP_Tester_TransformSetPosition(transformHandle, position);
     numCreated++;
   }
 }

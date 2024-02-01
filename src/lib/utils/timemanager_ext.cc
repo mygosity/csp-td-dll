@@ -10,25 +10,25 @@
 
 extern "C" {
 
-void (*UnityDebugLog)(const char*);
+void (*MGCP_TM_UnityDebugLog)(const char*);
 
-std::shared_ptr<mgcp::TimeManager> timeManager;
-int count = 0;
-int timeindex = 0;
+std::shared_ptr<mgcp::TimeManager> MGCP_TM_timeManager;
+int MGCP_TM_count = 0;
+int MGCP_TM_timeindex = 0;
 
 DLLEXPORT void InitTimeManager(         //
     void (*unityDebugLog)(const char*)  //
 ) {
-  UnityDebugLog = unityDebugLog;
-  UnityDebugLog("cpp::InitTimeManager::");
-  timeManager = std::make_shared<mgcp::TimeManager>(UnityDebugLog);
-  timeManager->Start();
+  MGCP_TM_UnityDebugLog = unityDebugLog;
+  MGCP_TM_UnityDebugLog("cpp::InitTimeManager::");
+  MGCP_TM_timeManager = std::make_shared<mgcp::TimeManager>(MGCP_TM_UnityDebugLog);
+  MGCP_TM_timeManager->Start();
   // timeindex = timeManager->SetInterval(
   //     [&]() {
   //       count++;
   //       std::string log("cpp::SetInterval fired count: ");
   //       log.append(std::to_string(count));
-  //       UnityDebugLog(log.c_str());
+  //       TM_UnityDebugLog(log.c_str());
   //       if (count > 2) {
   //         timeManager->ClearTimeout(timeindex);
   //         return;
@@ -37,38 +37,38 @@ DLLEXPORT void InitTimeManager(         //
   //     1000);
 }
 
-DLLEXPORT void TimeManagerUpdate() { timeManager->Update(); }
+DLLEXPORT void TimeManagerUpdate() { MGCP_TM_timeManager->Update(); }
 
 DLLEXPORT void TimeManagerDestruct() {
-  UnityDebugLog("cpp::TimeManagerDestruct::");
-  timeManager->ClearAll();
-  timeManager->Stop();
+  MGCP_TM_UnityDebugLog("cpp::TimeManagerDestruct::");
+  MGCP_TM_timeManager->ClearAll();
+  MGCP_TM_timeManager->Stop();
 }
 
 DLLEXPORT int32_t SetTimeout(void (*callback)(), int32_t time) {
   std::string log("cpp::SetTimeout made with :: interval: ");
   log.append(std::to_string(time));
-  UnityDebugLog(log.c_str());
-  return timeManager->SetTimeout(callback, time);
+  MGCP_TM_UnityDebugLog(log.c_str());
+  return MGCP_TM_timeManager->SetTimeout(callback, time);
 }
 
 DLLEXPORT int32_t SetInterval(void (*callback)(), int32_t time) {
   std::string log("cpp::SetInterval made with :: interval: ");
   log.append(std::to_string(time));
-  UnityDebugLog(log.c_str());
-  return timeManager->SetInterval(callback, time);
+  MGCP_TM_UnityDebugLog(log.c_str());
+  return MGCP_TM_timeManager->SetInterval(callback, time);
 }
 
 DLLEXPORT void ClearTimer(int32_t keyIndex) {
   std::string log("cpp::ClearTimer made with :: keyIndex: ");
   log.append(std::to_string(keyIndex));
-  UnityDebugLog(log.c_str());
-  timeManager->ClearTimeout(keyIndex);
+  MGCP_TM_UnityDebugLog(log.c_str());
+  MGCP_TM_timeManager->ClearTimeout(keyIndex);
 }
 
 DLLEXPORT void ClearAll() {
-  UnityDebugLog("cpp::ClearAll::");
-  timeManager->ClearAll();
+  MGCP_TM_UnityDebugLog("cpp::ClearAll::");
+  MGCP_TM_timeManager->ClearAll();
 }
 
 }  // extern C
